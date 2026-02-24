@@ -3,13 +3,11 @@ import requests
 import os
 
 app = Flask(__name__,
-            template_folder="templates",
-            static_folder="static")
+    template_folder="../templates",
+    static_folder="../static"
+)
 
-API_KEY = os.getenv("GROQ_API_KEY")
-
-MODEL_NAME = "llama-3.1-8b-instant"
-GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 @app.route("/")
 def home():
@@ -18,37 +16,37 @@ def home():
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
-        user_message = request.json["message"]
+        if not GROQ_API_KEY:
+            return jsonify({"reply": "ERROR: GROQ_API_KEY not set in Vercel"}), 500
 
-        payload = {
-            "model": MODEL_NAME,
-            "messages": [
-                {"role": "user", "content": user_message}
-            ]
-        }
+        user_message = request.json.get("message", "").strip()
 
-        r = requests.post(
-            GROQ_URL,
+        if not user_message:
+            return jsonify({"reply": "Please enter a message."})
+
+        response = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
             headers={
-                "Authorization": f"Bearer {API_KEY}",
+                "Authorization": f"Bearer {GROQ_API_KEY}",
                 "Content-Type": "application/json"
             },
-            json=payload,
-            timeout=30
+            json={
+                "model": "lama-3.1-8b-instant",
+                "messages": [
+                    {"role": "user", "content": user_message}
+                ]
+            },
+            timeout=600
         )
 
-        data = r.json()
+        data = response.json()
 
         if "choices" not in data:
             return jsonify({"reply": f"Groq Error: {data}"}), 500
-
-        reply = data["choices"][0]["message"]["content"]
+                    
+            reply = data["choices"][0]["message"]["content"]
 
         return jsonify({"reply": reply})
 
     except Exception as e:
         return jsonify({"reply": f"Server Error: {str(e)}"}), 500
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
