@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-import google.generativeai as genai
+import requests
 import os
 
 app = Flask(
@@ -9,9 +9,6 @@ app = Flask(
 )
 
 API_KEY = os.getenv("GEMINI_KEY")
-
-if API_KEY:
-    genai.configure(api_key=API_KEY)
 
 @app.route("/")
 def home():
@@ -28,11 +25,29 @@ def chat():
         if not user_message:
             return jsonify({"reply": "Please enter a message."})
 
-        model = genai.GenerativeModel("gemini-pro")
+        response = requests.post(
+            "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+            headers={
+                "Authorization": f"Bearer {API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "gemini-1.5-flash",
+                "messages": [
+                    {"role": "user", "content": user_message}
+                ]
+            },
+            timeout=30
+        )
 
-        response = model.generate_content(user_message)
+        data = response.json()
 
-        return jsonify({"reply": response.text})
+        if "choices" not in data:
+            return jsonify({"reply": f"Gemini API Error: {data}"}), 500
+
+        reply = data["choices"][0]["message"]["content"]
+
+        return jsonify({"reply": reply})
 
     except Exception as e:
         return jsonify({"reply": f"Server Error: {str(e)}"}), 500
