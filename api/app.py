@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask,render_template,request,jsonify
 import requests
 import os
 
@@ -34,7 +34,7 @@ def chat():
             json={
                 "model": "llama-3.1-8b-instant",
                 "messages": [
-                    {"role": "user", "content": user_message}
+                    {"role": "user","content": user_message}
                 ]
             },
             timeout=30
