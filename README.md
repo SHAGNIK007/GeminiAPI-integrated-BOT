@@ -1,6 +1,6 @@
-# GeminiAPI-integrated-BOT
+# GroqAPI-integrated-BOT
 
 ADD ENV VARIABLE BY YOURSELF 
-```export GEMINI_API="{your_key}"```
+```export GROQ_API_KEY="{your_key}"```
 TO RUN-
-```python app.py```
+```python api/app.py```
