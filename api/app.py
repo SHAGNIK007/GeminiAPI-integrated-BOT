@@ -31,7 +31,7 @@ def chat():
                 "Content-Type": "application/json"
             },
             json={
-                "model": "lama-3.1-8b-instant",
+                "model": "llama-3.1-8b-instant",
                 "messages": [
                     {"role": "user", "content": user_message}
                 ]
