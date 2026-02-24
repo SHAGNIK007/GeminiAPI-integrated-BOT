@@ -8,7 +8,7 @@ app = Flask(
     static_folder="../static"
 )
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 @app.route("/")
 def home():
@@ -17,8 +17,8 @@ def home():
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
-        if not OPENAI_API_KEY:
-            return jsonify({"reply": "ERROR: OPENAI_API_KEY not set in Vercel"}), 500
+        if not GROQ_API_KEY:
+            return jsonify({"reply": "ERROR: GROQ_API_KEY not set in Vercel"}), 500
 
         user_message = request.json.get("message", "").strip()
 
@@ -26,13 +26,13 @@ def chat():
             return jsonify({"reply": "Please enter a message."})
 
         response = requests.post(
-            "https://api.openai.com/v1/chat/completions",
+            "https://api.groq.com/openai/v1/chat/completions",
             headers={
-                "Authorization": f"Bearer {OPENAI_API_KEY}",
+                "Authorization": f"Bearer {GROQ_API_KEY}",
                 "Content-Type": "application/json"
             },
             json={
-                "model": "gpt-4o-mini",
+                "model": "llama3-8b-8192",
                 "messages": [
                     {"role": "user", "content": user_message}
                 ]
@@ -43,7 +43,7 @@ def chat():
         data = response.json()
 
         if "choices" not in data:
-            return jsonify({"reply": f"OpenAI Error: {data}"}), 500
+            return jsonify({"reply": f"Groq Error: {data}"}), 500
 
         reply = data["choices"][0]["message"]["content"]
 
