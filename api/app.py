@@ -8,7 +8,7 @@ app = Flask(
     static_folder="../static"
 )
 
-API_KEY = os.getenv("GEMINI_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 @app.route("/")
 def home():
@@ -17,8 +17,8 @@ def home():
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
-        if not API_KEY:
-            return jsonify({"reply": "ERROR: GEMINI_KEY not set in Vercel"}), 500
+        if not OPENAI_API_KEY:
+            return jsonify({"reply": "ERROR: OPENAI_API_KEY not set in Vercel"}), 500
 
         user_message = request.json.get("message", "").strip()
 
@@ -26,13 +26,13 @@ def chat():
             return jsonify({"reply": "Please enter a message."})
 
         response = requests.post(
-            "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+            "https://api.openai.com/v1/chat/completions",
             headers={
-                "Authorization": f"Bearer {API_KEY}",
+                "Authorization": f"Bearer {OPENAI_API_KEY}",
                 "Content-Type": "application/json"
             },
             json={
-                "model": "gemini-1.5-flash",
+                "model": "gpt-4o-mini",
                 "messages": [
                     {"role": "user", "content": user_message}
                 ]
@@ -43,7 +43,7 @@ def chat():
         data = response.json()
 
         if "choices" not in data:
-            return jsonify({"reply": f"Gemini API Error: {data}"}), 500
+            return jsonify({"reply": f"OpenAI Error: {data}"}), 500
 
         reply = data["choices"][0]["message"]["content"]
 
