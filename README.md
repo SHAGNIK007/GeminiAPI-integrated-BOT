@@ -2,7 +2,7 @@
 
 A clean and simple web AI chat interface that uses a backend API powered by Ollama models.
 
-Live site: https://shaggyai.vercel.app :contentReference[oaicite:1]{index=1}
+Live site: https://shaggyai.vercel.app
 
 ---
 
